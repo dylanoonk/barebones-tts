@@ -1,0 +1,7 @@
+[project]
+name = "barebones-tts"
+version = "0.1.0"
+description = "I wanted a TTS from first principles"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
