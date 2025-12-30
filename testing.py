@@ -1,6 +1,7 @@
 from colorama import Fore, init
 from text_normalization import replace_punctuation_and_expand_abreviations
 from text_normalization import numbers_to_words
+from formant_synth import FormantSynthesizer
 
 
 init()

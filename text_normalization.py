@@ -113,8 +113,8 @@ PUNCTUATION_REPLACEMENT_RULES = [
     # Hashtag
     (re.compile(r'#'), ' hashtag '),
     
-    # Dollar sign
-    (re.compile(r'\$'), ' dollar '),
+    # Dollar sign 
+    # (re.compile(r'\$'), ' dollar '), # We're gonna have to do this in a post processing step
     
     # Percent sign
     (re.compile(r'%'), ' percent '),
