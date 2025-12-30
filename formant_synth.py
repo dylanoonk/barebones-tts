@@ -301,12 +301,15 @@ if __name__ == "__main__":
     synth = FormantSynthesizer()
     
     test_words = {
-        'this is dylan\'s text to speech synthesizer': 'DH IH1 S IH1 Z D IH1 L AH0 N Z T EH1 K S T T UW1 S P IY1 CH S IH1 N TH AH0 S AY2 Z ER0'.split()
+        'this is dylans text to speech synthesizer': 'DH IH1 S IH1 Z D IH1 L AH0 N Z T EH1 K S T T UW1 S P IY1 CH S IH1 N TH AH0 S AY2 Z ER0'.split(),
+        'sahara please set me free': 'S AH0 HH EH1 R AH0 P L IY1 Z S EH1 T M IY1 F R IY1'.split(),
+        'its me five nights at freddys ar ar ar ar': 'IH1 T S M IY1 F AY1 V N AY1 T S AE1 T F R EH1 D IY0 Z AA1 R AA1 R AA1 R AA1 R'.split(),
+
     }
     
     for word, phonemes in test_words.items():
         print(f"Synthesizing: {word}")
         audio = synth.synthesize(phonemes)
-        synth.save_wav(audio, 'new_tts_test.wav')
+        synth.save_wav(audio, f'test_word_files/{word}.wav')
     
     print("\nDone!")

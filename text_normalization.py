@@ -1,6 +1,6 @@
 import re
-
-# I moved these out here to keep from having to recomile all of the regexs everytime the replace_punctuation_and_expand_abreviations() runs
+from tokenization import Tokenization, Token
+# I moved these out here to keep from having to recompile all of the regexs everytime the replace_punctuation_and_expand_abreviations() runs
 
 COMMON_REPLACEMENT_RULES = [
     # Titles
@@ -60,30 +60,33 @@ COMMON_REPLACEMENT_RULES = [
     (re.compile(r'\bnw\b'), 'north west'),
     (re.compile(r'\bse\b'), 'south east'),
     (re.compile(r'\bsw\b'), 'south west'),
-    
-    # Remove commas in numbers
-    (re.compile(r'(?<=\d),(?=\d)'), ''),
-
-    (re.compile(r'(?<=\d)\.(?=\d)'), ' point '),
-    (re.compile(r'(?<=\w)\.(?=\w)'), ' dot '),
       
 ]
     
 PUNCTUATION_REPLACEMENT_RULES = [
-    # These two have to run first to avoid some edge cases where they replace some of the tokens
+    # These three have to run first to avoid some edge cases where they replace some of the tokens
     (re.compile(r'\[',), ' open bracket '),
     (re.compile(r'\]'), ' close bracket '),
+    (re.compile(r'(?<=\d),(?=\d)'), ''), # Remove commas in numbers
 
-    # Ellipsis (must come before single period)
+    # Dollar sign 
+    (re.compile(r'\$(\d+(?:\.\d+)?)'), r'\1$'), # Swaps around the dollar sign to the end
+    (re.compile(r'(?<!\d)\$(?!\d)'), ' dollar sign '),
+
+    # Dots
     (re.compile(r'\.\.\.'), ' dot dot dot '),
+    (re.compile(r'(?<=\d)\.(?=\d)'), ' point '),
+    (re.compile(r'(?<=\w)\.(?=\w)'), ' dot '),
     
+    (re.compile(r'(\d+)\$'), r'\1 dollars '),
+
     # Sentence endings
     (re.compile(r'\.'), ' [PERIOD_SILENCE] '),
     (re.compile(r'\?'), ' [QUESTION] '),
     (re.compile(r'!'), ' [EXCLAMATION] '),
     
     # Pauses
-    (re.compile(r','), ' [COMMA_SILENCE]'),
+    (re.compile(r','), ' [COMMA_SILENCE] '),
     (re.compile(r':'), ' colon '),
     (re.compile(r';'), ' semi colon '),
     
@@ -102,7 +105,7 @@ PUNCTUATION_REPLACEMENT_RULES = [
     
     # Slashes
     (re.compile(r'/'), ' slash '),
-    (re.compile(r'\\'), ' back slash'),
+    (re.compile(r'\\'), ' back slash '),
     
     # Ampersand
     (re.compile(r'&'), ' and '),
@@ -112,10 +115,7 @@ PUNCTUATION_REPLACEMENT_RULES = [
     
     # Hashtag
     (re.compile(r'#'), ' hashtag '),
-    
-    # Dollar sign 
-    # (re.compile(r'\$'), ' dollar '), # We're gonna have to do this in a post processing step
-    
+
     # Percent sign
     (re.compile(r'%'), ' percent '),
     
@@ -123,13 +123,15 @@ PUNCTUATION_REPLACEMENT_RULES = [
     (re.compile(r'\*'), ' asterisk '),
 ]
 
-def numbers_to_words(number: int) -> str:
+MULTIPLE_SPACES_PATTERN = re.compile(r'\s+')
+
+def numbers_to_words(number: int) -> list[str]:
     """
     Okay this is sorta shitass but it takes in an integer and returns the word version of that integer.
     
     :param int number: The number you want to turn into words
     :return: The number specified in word form
-    :rtype: str
+    :rtype: list[str]
     
     For example:
 
@@ -169,7 +171,7 @@ def numbers_to_words(number: int) -> str:
         if number == 0:
             break
 
-    return " ".join(reversed(words)).strip()
+    return (" ".join(reversed(words)).strip()).split()
 
 def replace_punctuation_and_expand_abreviations(text: str) -> str:
     """
@@ -192,21 +194,40 @@ def replace_punctuation_and_expand_abreviations(text: str) -> str:
     for pattern, replacement in PUNCTUATION_REPLACEMENT_RULES:
         text = pattern.sub(replacement, text)
 
-    text = re.sub(re.compile(r'\s+'), ' ', text).strip()
-
-    return text
-    
-
-def normalize_text(text):
-    text = str.lower(text)
+    #text = re.sub(MULTIPLE_SPACES_PATTERN, ' ', text).strip()
+    text = MULTIPLE_SPACES_PATTERN.sub(' ', text).strip()
 
     return text
 
+def normalize_text(text) -> Tokenization:
+    text = replace_punctuation_and_expand_abreviations(text)
+    tokens = Tokenization(text)
 
+    expanded_tokens = []
+    quote_opened = False
 
+    for token in tokens:
+        if token.text.isdigit():
+            token_converted_to_words = numbers_to_words(int(token.text))
+            for word in token_converted_to_words:
+                expanded_tokens.append(Token(word))
+        elif token.text == '[QUOTE]':
+            if not quote_opened:
+                expanded_tokens.append(Token('quote'))
+            else:
+                expanded_tokens.append(Token('unquote'))
+
+            quote_opened = not quote_opened
+        else:
+            expanded_tokens.append(token)
+
+    tokens.tokens = expanded_tokens
+
+    return tokens
 
 def main():
-    pass
+    normalized_text = normalize_text('she said, "Hello World" and that I owe her $123.')
+    print(normalized_text)
 
 
 if __name__ == '__main__':

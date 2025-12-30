@@ -1,4 +1,5 @@
-# Yeah I'll get to this in a second man
+from text_normalization import normalize_text
+from tokenization import Tokenization, Token
 
 def main():
     print("Hello from barebones-tts!")

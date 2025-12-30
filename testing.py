@@ -27,7 +27,7 @@ def test_replace_punctuation_and_expand_abreviations(DEBUG=False):
         ("It's a high-quality product.", "it's a high quality product [PERIOD_SILENCE]"),
         ("This is (a test).", "this is open parenthesis a test close parenthesis [PERIOD_SILENCE]"),
         ("He said, \"Hello!\"", "he said [COMMA_SILENCE] [QUOTE] hello [EXCLAMATION] [QUOTE]"),
-        ("price: $500.00", "price colon dollar 500 point 00"), # Demonstrates $
+        ("price: $500.00", "price colon 500 point 00 dollars"), # Demonstrates $
         ("100% complete.", "100 percent complete [PERIOD_SILENCE]"),
         ("user@example.com", "user at example dot com"),
         ("File name: document-final.pdf", "file name colon document final dot pdf"), # Hyphen between words removed
@@ -46,7 +46,7 @@ def test_replace_punctuation_and_expand_abreviations(DEBUG=False):
         ("Project [Alpha]. Phase II.", "project open bracket alpha close bracket [PERIOD_SILENCE] phase ii [PERIOD_SILENCE]"),
         ("What's up?", "what's up [QUESTION]"),
         ("Well, I suppose... yes!", "well [COMMA_SILENCE] i suppose dot dot dot yes [EXCLAMATION]"),
-        ("The cost is $1,234.56. Only 50% left!", "the cost is dollar 1234 point 56 [PERIOD_SILENCE] only 50 percent left [EXCLAMATION]"),
+        ("The cost is $1,234.56. Only 50% left!", "the cost is 1234 point 56 dollars [PERIOD_SILENCE] only 50 percent left [EXCLAMATION]"),
         ("Call 1-800-ABC-DEF.", "call 1 800 abc def [PERIOD_SILENCE]"),
     ]
 
@@ -54,9 +54,9 @@ def test_replace_punctuation_and_expand_abreviations(DEBUG=False):
         actual_output = replace_punctuation_and_expand_abreviations(input_text)
 
         if DEBUG:
-            print(f"Input:    '{input_text}'")
-            print(f"Expected: '{expected_output}'")
-            print(f"Actual:   '{actual_output}'")
+            print(f"{Fore.YELLOW}Input:    '{Fore.WHITE + input_text + Fore.YELLOW}'")
+            print(f"{Fore.YELLOW}Expected: '{Fore.WHITE + expected_output + Fore.YELLOW}'")
+            print(f"{Fore.YELLOW}Actual:   '{Fore.WHITE + actual_output + Fore.YELLOW}'")
 
         assert actual_output == expected_output, f"\n\n{Fore.RED}Test failed for input: \"{Fore.WHITE + input_text + Fore.RED}\"\nExpected: \"{Fore.WHITE + expected_output + Fore.RED}\"\nGot: {' '* 5}\"{Fore.WHITE + actual_output + Fore.RED}\""
         if DEBUG:
@@ -107,9 +107,9 @@ def test_numbers_to_words(DEBUG=False):
         actual_output = numbers_to_words(input_number)
 
         if DEBUG:
-            print(f"Input:    '{input_number}'")
-            print(f"Expected: '{expected_output}'")
-            print(f"Actual:   '{actual_output}'")
+            print(f"{Fore.YELLOW}Input:    '{Fore.WHITE + input_number + Fore.YELLOW}'")
+            print(f"{Fore.YELLOW}Expected: '{Fore.WHITE + expected_output + Fore.YELLOW}'")
+            print(f"{Fore.YELLOW}Actual:   '{Fore.WHITE + actual_output + Fore.YELLOW}'")
 
         assert actual_output == expected_output, f"\n\n{Fore.RED}Test failed for input: \"{Fore.WHITE + input_number + Fore.RED}\"\nExpected: \"{Fore.WHITE + expected_output + Fore.RED}\"\nGot: {' '* 5}\"{Fore.WHITE + actual_output + Fore.RED}\""
         if DEBUG:
@@ -117,7 +117,7 @@ def test_numbers_to_words(DEBUG=False):
     print(f"{Fore.GREEN}All Tests Passed For {Fore.WHITE}numbers_to_words()")
 
 def main():
-    test_replace_punctuation_and_expand_abreviations()
+    test_replace_punctuation_and_expand_abreviations(DEBUG=True)
     test_numbers_to_words()
 
 if __name__ == "__main__":
