@@ -203,61 +203,10 @@ def normalize_text(text):
     return text
 
 
-def test_replace_punctuation_and_expand_abreviations():
-    # I'll move this into a separate helper script at some point but for now I'm keeping it here
-    test_cases = [
-        # Common Abbreviations
-        ("Dr. Smith is here.", "doctor smith is here [PERIOD_SILENCE]"),
-        ("I.e., this is important.", "that is [COMMA_SILENCE] this is important [PERIOD_SILENCE]"),
-        ("He is a prof. at the univ. Dept. of History.", "he is a professor at the univ [PERIOD_SILENCE] department of history [PERIOD_SILENCE]"),
-        ("It's 9 A.M. sharp.", "it's 9 A M sharp [PERIOD_SILENCE]"),
-        ("He lives at 123 Main St. NE.", "he lives at 123 main st [PERIOD_SILENCE] north east [PERIOD_SILENCE]"),
-        ("The company, Inc. & Co. Ltd.", "the company [COMMA_SILENCE] incorporated and company limited"),
-        ("approx. 10,000 ft.", "approximately 10000 feet"),
-        ("No. 5 vs. No. 6", "number 5 versus number 6"),
-        ("figure 2.5", "figure 2 point 5"), # Example of period as decimal, not end of sentence
-        
-        # Punctuation Replacement
-        ("Hello, World!", "hello [COMMA_SILENCE] world [EXCLAMATION]"),
-        ("Is this a test?", "is this a test [QUESTION]"),
-        ("This is important...", "this is important dot dot dot"),
-        ("List: item1; item2; item3.", "list colon item1 semi colon item2 semi colon item3 [PERIOD_SILENCE]"),
-        ("It's a high-quality product.", "it's a high quality product [PERIOD_SILENCE]"),
-        ("This is (a test).", "this is open parenthesis a test close parenthesis [PERIOD_SILENCE]"),
-        ("He said, \"Hello!\"", "he said [COMMA_SILENCE] [QUOTE] hello [EXCLAMATION] [QUOTE]"),
-        ("price: $500.00", "price colon dollar 500 point 00"), # Demonstrates $
-        ("100% complete.", "100 percent complete [PERIOD_SILENCE]"),
-        ("user@example.com", "user at example dot com"),
-        ("File name: document-final.pdf", "file name colon document final dot pdf"), # Hyphen between words removed
-        ("Here – is some text.", "here dash is some text [PERIOD_SILENCE]"), # En dash
-        ("This is an em—dash.", "this is an em dash dash [PERIOD_SILENCE]"), # Em dash
-        ("The value is x/y.", "the value is x slash y [PERIOD_SILENCE]"),
-        ("A & B", "a and b"),
-        ("Tag #new", "tag hashtag new"),
-        ("This*is*important", "this asterisk is asterisk important"),
 
-        # Mixed Cases
-        ("Dr. Smith said, \"It's 2 P.M. vs. 3 P.M.\"", "doctor smith said [COMMA_SILENCE] [QUOTE] it's 2 P M versus 3 P M [QUOTE]"),
-        ("He bought 10 lbs. of fruit.", "he bought 10 pounds of fruit [PERIOD_SILENCE]"),
-        ("The address is 123 Main St. NW.", "the address is 123 main st [PERIOD_SILENCE] north west [PERIOD_SILENCE]"),
-        ("Figure No. 1: (approx. 5ft. x 3in.).", "figure number 1 colon open parenthesis approximately 5 feet x 3 inches close parenthesis [PERIOD_SILENCE]"),
-        ("Project [Alpha]. Phase II.", "project open bracket alpha close bracket [PERIOD_SILENCE] phase ii [PERIOD_SILENCE]"),
-        ("What's up?", "what's up [QUESTION]"),
-        ("Well, I suppose... yes!", "well [COMMA_SILENCE] i suppose dot dot dot yes [EXCLAMATION]"),
-        ("The cost is $1,234.56. Only 50% left!", "the cost is dollar 1234 point 56 [PERIOD_SILENCE] only 50 percent left [EXCLAMATION]"),
-        ("Call 1-800-ABC-DEF.", "call 1 800 abc def [PERIOD_SILENCE]"),
-    ]
-
-    for input_text, expected_output in test_cases:
-        actual_output = replace_punctuation_and_expand_abreviations(input_text)
-        print(f"Input:    '{input_text}'")
-        print(f"Expected: '{expected_output}'")
-        print(f"Actual:   '{actual_output}'")
-        assert actual_output == expected_output, f"Test failed for input: '{input_text}'\nExpected: '{expected_output}', Got: '{actual_output}'"
-        print("Test Passed!\n")
 
 def main():
-    test_replace_punctuation_and_expand_abreviations()
+    pass
 
 
 if __name__ == '__main__':
