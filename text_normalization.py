@@ -1,5 +1,5 @@
 import re
-from tokenization import Tokenization, Token
+from tokenization import TokenList, Token
 # I moved these out here to keep from having to recompile all of the regexs everytime the replace_punctuation_and_expand_abreviations() runs
 
 COMMON_REPLACEMENT_RULES = [
@@ -93,6 +93,7 @@ PUNCTUATION_REPLACEMENT_RULES = [
     # Dashes and hyphens
     (re.compile(r'—'), ' dash '),  # em dash
     (re.compile(r'–'), ' dash '),  # en dash
+    (re.compile(r'--'), ' dash '),
     (re.compile(r'(?<=\w)-(?=\w)'), ' '),  # hyphen between words (remove)
     (re.compile(r'(?<=\s)-(?=\s)'), ' dash '),  # spaced dash
     
@@ -148,7 +149,7 @@ def numbers_to_words(number: int) -> list[str]:
 
     """
     if number == 0:
-        return "zero"
+        return ["zero"]
     
     def three_digits(NUMBER):
         ONES = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"]
@@ -172,6 +173,7 @@ def numbers_to_words(number: int) -> list[str]:
             break
 
     return (" ".join(reversed(words)).strip()).split()
+
 
 def replace_punctuation_and_expand_abreviations(text: str) -> str:
     """
@@ -199,9 +201,51 @@ def replace_punctuation_and_expand_abreviations(text: str) -> str:
 
     return text
 
-def normalize_text(text) -> Tokenization:
+def set_modifiers_from_table(tokens: TokenList) -> TokenList:
+    MODIFIER_TABLE = { # MODIFIER_NAME: [SILENCE_TIME (ms), PITCH_MODIFIER (%), MODIFIES_PREVIOUS_TOKEN]
+        '[PERIOD_SILENCE]': [300.0, 0.0, False],
+        '[COMMA_SILENCE]': [190.0, 0.0, False],
+        '[QUESTION]': [280.0, 20.0, True],
+        '[EXCLAMATION]': [280.0, 5.0, True],
+        '[QUOTE]': [0.0, 0.0, False], # All quotes will be removed and replaced with proper words during normalization
+    }
+
+    for token in tokens:
+        text = token.get_text()
+
+        if text in MODIFIER_TABLE:
+            token.set_modifier_flag(True)
+            token.set_silence_time(MODIFIER_TABLE[text][0])
+            token.set_pitch_modifier(MODIFIER_TABLE[text][1])
+            token.set_modifies_previous_token_flag(MODIFIER_TABLE[text][2])
+
+    return tokens
+
+
+def normalize_text(text: str) -> TokenList:
+    """
+    Takes text and transforms it into a more speakable version of it (in token form)
+
+    ## Example
+
+    ```python
+    normalize_text('she said, "Hello World" and that I owe her $123.')
+    ```
+
+    Returns a tokenized list that looks like this:
+
+    ```python
+    [{'text': 'she'}, {'text': 'said'}, {'text': '[COMMA_SILENCE]', 'modifies_previous_token': False, 'silence_time': 190.0, 'pitch_modifier': 0.0}, {'text': 'quote'}, {'text': 'hello'}, {'text': 'world'}, {'text': 'unquote'}, {'text': 'and'}, {'text': 'that'}, {'text': 'i'}, {'text': 'owe'}, {'text': 'her'}, {'text': 'one'}, {'text': 'hundred'}, {'text': 'twenty'}, {'text': 'three'}, {'text': 'dollars'}, {'text': '[PERIOD_SILENCE]', 'modifies_previous_token': False, 'silence_time': 300.0, 'pitch_modifier': 0.0}]
+    ```
+    
+    :param text: Text to normalize
+    :type text: str
+    :return: Normalized text
+    :rtype: TokenList
+    """
+
     text = replace_punctuation_and_expand_abreviations(text)
-    tokens = Tokenization(text)
+    tokens = TokenList(text)
 
     expanded_tokens = []
     quote_opened = False
@@ -210,18 +254,20 @@ def normalize_text(text) -> Tokenization:
         if token.text.isdigit():
             token_converted_to_words = numbers_to_words(int(token.text))
             for word in token_converted_to_words:
-                expanded_tokens.append(Token(word))
+                expanded_tokens.append(Token(TEXT=word))
         elif token.text == '[QUOTE]':
             if not quote_opened:
-                expanded_tokens.append(Token('quote'))
+                expanded_tokens.append(Token(TEXT='quote'))
             else:
-                expanded_tokens.append(Token('unquote'))
+                expanded_tokens.append(Token(TEXT='unquote'))
 
             quote_opened = not quote_opened
         else:
             expanded_tokens.append(token)
 
     tokens.tokens = expanded_tokens
+
+    tokens = set_modifiers_from_table(tokens)
 
     return tokens
 
