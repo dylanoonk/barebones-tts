@@ -25,5 +25,5 @@ if __name__ == '__main__':
         while True:
             speaking_loop(synth)
     except:
-        print('Goodbye')
+        print(f"{Fore.RESET}\nGoodbye.")
         exit()
