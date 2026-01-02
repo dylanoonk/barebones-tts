@@ -43,9 +43,16 @@ def main():
     arpabetized = arpabetize(normalized)
 
     for token in arpabetized:
-        audio = synth.synthesize(token.get_text())
+        TOKEN_TEXT = token.get_text()
+
+        print(f"saying {' '.join(TOKEN_TEXT)}")
+        audio = synth.synthesize(TOKEN_TEXT)
         synth.play(audio)
+    main()
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except:
+        exit()
