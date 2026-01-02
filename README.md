@@ -1,6 +1,6 @@
-# Barebones text to speech
+# Barebones Text To Speech
 
-I wanted a text-to-speech system from first principles because I wanted to learn how old-timey text-to-speech systems worked.
+I wrote a text-to-speech system from first principles because I wanted to learn how old-timey text-to-speech systems worked. I'll make a video or something on how it works because there weren't any good in-depth videos about non-nueral-network text-to-speech systems.
 
 ## How to install
 
