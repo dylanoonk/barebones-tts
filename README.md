@@ -17,7 +17,7 @@ pip install -r requirements.txt
 Literally just
 
 ```bash
-python3 arpabet.py
+python3 barebones-tts.py
 ```
 
 ...and start typing. This is still in early development so this will change soon to be better.

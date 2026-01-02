@@ -34,22 +34,22 @@ COMMON_REPLACEMENT_RULES = [
     (re.compile(r'\bsec\.'), 'section'),
     
     # Time
-    (re.compile(r'\b(a\.m\.|am)'), 'A M'),
-    (re.compile(r'\b(p\.m\.|pm)'), 'P M'),
+    (re.compile(r'\b(a\.m\.)'), ' a m '),
+    (re.compile(r'\b(p\.m\.)'), ' p m '),
     
     # Units (avoiding numbers)
-    (re.compile(r'(?<=\d)\s*ft\.'), ' feet'),
-    (re.compile(r'(?<=\d)\s*in\.'), ' inches'),
-    (re.compile(r'(?<=\d)\s*lb\.'), ' pounds'),
-    (re.compile(r'(?<=\d)\s*lbs\.'), ' pounds'),
-    (re.compile(r'(?<=\d)\s*oz\.'), ' ounces'),
+    (re.compile(r'(?<=\d)\s*ft\.'), ' feet '),
+    (re.compile(r'(?<=\d)\s*in\.'), ' inches '),
+    (re.compile(r'(?<=\d)\s*lb\.'), ' pounds '),
+    (re.compile(r'(?<=\d)\s*lbs\.'), ' pounds '),
+    (re.compile(r'(?<=\d)\s*oz\.'), ' ounces '),
     
     # Organizations
     (re.compile(r'\bcorp\.'), 'corporation'),
     (re.compile(r'\bco\.'), 'company'),
     (re.compile(r'\binc\.'), 'incorporated'),
     (re.compile(r'\bltd\.'), 'limited'),
-    (re.compile(r'\bl\.l\.c\.'), 'L L C'),
+    (re.compile(r'\bl\.l\.c\.'), ' l l c '),
     
     # Directions
     (re.compile(r'\bn\.'), 'north'),
