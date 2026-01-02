@@ -218,8 +218,11 @@ def set_modifiers_from_table(tokens: TokenList) -> TokenList:
             token.set_silence_time(MODIFIER_TABLE[text][0])
             token.set_pitch_modifier(MODIFIER_TABLE[text][1])
             token.set_modifies_previous_token_flag(MODIFIER_TABLE[text][2])
+        else:
+            token.set_speakable_flag(True)
 
     return tokens
+
 
 
 def normalize_text(text: str) -> TokenList:
@@ -251,11 +254,11 @@ def normalize_text(text: str) -> TokenList:
     quote_opened = False
 
     for token in tokens:
-        if token.text.isdigit():
-            token_converted_to_words = numbers_to_words(int(token.text))
+        if token._text.isdigit():
+            token_converted_to_words = numbers_to_words(int(token._text))
             for word in token_converted_to_words:
                 expanded_tokens.append(Token(TEXT=word))
-        elif token.text == '[QUOTE]':
+        elif token._text == '[QUOTE]':
             if not quote_opened:
                 expanded_tokens.append(Token(TEXT='quote'))
             else:
@@ -265,7 +268,7 @@ def normalize_text(text: str) -> TokenList:
         else:
             expanded_tokens.append(token)
 
-    tokens.tokens = expanded_tokens
+    tokens.set_list(expanded_tokens)
 
     tokens = set_modifiers_from_table(tokens)
 
