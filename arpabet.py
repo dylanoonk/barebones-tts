@@ -45,8 +45,11 @@ def arpabetize(tokens: TokenList, DB_FILE: str = 'pronunciation.db') -> TokenLis
 
             sound = sound.split()
             pronunciation_token.set_text(sound)
+            pronunciation_token.set_speakable_flag(True)
             
             pronunciations.append(pronunciation_token)
+        else:
+            pronunciations.append(token)
 
     CONNECTION.close()
 

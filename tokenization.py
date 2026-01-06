@@ -1,9 +1,3 @@
-class ModifierError(Exception):
-    """
-    Raised if a modifier-only attribute is attempted to be set on a non-modifier token
-    """
-    pass
-
 class Token:
     def __init__(self, TEXT: str = "", IS_MODIFIER: bool = False, MODIFIES_PREVIOUS_TOKEN: bool = False, IS_SPEAKABLE: bool = False, SILENCE_TIME: float = 0.0, PITCH_MODIFIER: float = 0.0):
         self._text: str = TEXT.strip()
@@ -35,19 +29,13 @@ class Token:
         return self._modifies_previous_token
     
     def set_silence_time(self, SILENCE_TIME: float):
-        if self._is_modifier or self._is_speakable:
             self._silence_time = SILENCE_TIME
-        else:
-            raise ModifierError("Cannot set a modifier-only flag on a non-modifier token")
 
     def get_silence_time(self) -> float:
         return self._silence_time
 
     def set_pitch_modifier(self, PITCH_MODIFIER: float):
-        if self._is_modifier or self._is_speakable:
             self._pitch_modifier = PITCH_MODIFIER
-        else:
-            raise ModifierError("Cannot set a modifier-only flag on a non-modifier token")
 
     def get_pitch_modifier(self) -> float:
         return self._pitch_modifier

@@ -284,6 +284,31 @@ class FormantSynthesizer:
         
         return audio
     
+    def pitch_shift(self, audio, percent):
+        """
+        Pitch shift audio by a given percentage.
+        Positive percent = pitch up, Negative percent = pitch down.
+        
+        :param audio: input audio array
+        :param percent: percentage to shift (e.g., 10 for 10% higher, -10 for 10% lower)
+        :return: pitch-shifted audio
+        """
+        # Calculate pitch ratio
+        if percent == 0.0:
+            return audio
+
+        ratio = 1.0 + (percent / 100.0)
+        
+        # Resample to change pitch (shorter = higher pitch, longer = lower pitch)
+        new_length = int(len(audio) / ratio)
+        return signal.resample(audio, new_length)
+    
+    def generate_silence(self, milliseconds):
+        """Generate silence for specified duration in milliseconds"""
+        duration_seconds = milliseconds / 1000.0
+        num_samples = int(self.sample_rate * duration_seconds)
+        return np.zeros(num_samples)
+    
     def save_wav(self, audio, filename):
         """Save audio as WAV file"""
         audio_int = np.int16(audio * 32767)
