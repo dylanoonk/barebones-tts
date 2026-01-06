@@ -10,4 +10,5 @@ wheels/
 .venv
 uv.lock
 
+.DS_Store
 test_word_files/
