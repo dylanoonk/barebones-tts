@@ -33,7 +33,7 @@ def test_replace_punctuation_and_expand_abreviations(DEBUG=False):
         ("Dr. Smith is here.", "doctor smith is here [PERIOD_SILENCE]"),
         ("I.e., this is important.", "that is [COMMA_SILENCE] this is important [PERIOD_SILENCE]"),
         ("He is a prof. at the univ. Dept. of History.", "he is a professor at the univ [PERIOD_SILENCE] department of history [PERIOD_SILENCE]"),
-        ("It's 9 A.M. sharp.", "it's 9 A M sharp [PERIOD_SILENCE]"),
+        ("It's 9 A.M. sharp.", "it's 9 a m sharp [PERIOD_SILENCE]"),
         ("He lives at 123 Main St. NE.", "he lives at 123 main st [PERIOD_SILENCE] north east [PERIOD_SILENCE]"),
         ("The company, Inc. & Co. Ltd.", "the company [COMMA_SILENCE] incorporated and company limited"),
         ("approx. 10,000 ft.", "approximately 10000 feet"),
@@ -60,7 +60,7 @@ def test_replace_punctuation_and_expand_abreviations(DEBUG=False):
         ("This*is*important", "this asterisk is asterisk important"),
 
         # Mixed Cases
-        ("Dr. Smith said, \"It's 2 P.M. vs. 3 P.M.\"", "doctor smith said [COMMA_SILENCE] [QUOTE] it's 2 P M versus 3 P M [QUOTE]"),
+        ("Dr. Smith said, \"It's 2 P.M. vs. 3 P.M.\"", "doctor smith said [COMMA_SILENCE] [QUOTE] it's 2 p m versus 3 p m [QUOTE]"),
         ("He bought 10 lbs. of fruit.", "he bought 10 pounds of fruit [PERIOD_SILENCE]"),
         ("The address is 123 Main St. NW.", "the address is 123 main st [PERIOD_SILENCE] north west [PERIOD_SILENCE]"),
         ("Figure No. 1: (approx. 5ft. x 3in.).", "figure number 1 colon open parenthesis approximately 5 feet x 3 inches close parenthesis [PERIOD_SILENCE]"),
@@ -260,8 +260,8 @@ def test_normalize_text(DEBUG=False):
             Token(TEXT='is'),
             Token(TEXT='at'),
             Token(TEXT='nine'),
-            Token(TEXT='A'),
-            Token(TEXT='M'),
+            Token(TEXT='a'),
+            Token(TEXT='m'),
             Token(TEXT='sharp'),
             Token(TEXT='[PERIOD_SILENCE]')
         ])).to_json()),

@@ -68,7 +68,7 @@ def speaking_loop(synth: FormantSynthesizer, save_to_file=False):
 if __name__ == '__main__':
     init()
     synth: FormantSynthesizer = FormantSynthesizer()
-    save_to_file = True if '--wav' or '-w' in sys.argv else False
+    save_to_file = True if '--wav' in sys.argv or '-w' in sys.argv else False
     try:
         while True:
             speaking_loop(synth, save_to_file=save_to_file)

@@ -122,8 +122,10 @@ class TokenList:
 
 
 def main():
-    tokens = TokenList("hello world")
+    token = Token("Hello")
+    tokens = TokenList(["hello", "world"])
 
+    print(token)
     print(tokens)
 if __name__ == "__main__":
     main()

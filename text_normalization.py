@@ -254,11 +254,11 @@ def normalize_text(text: str) -> TokenList:
     quote_opened = False
 
     for token in tokens:
-        if token._text.isdigit():
-            token_converted_to_words = numbers_to_words(int(token._text))
+        if token.get_text().isdigit():
+            token_converted_to_words = numbers_to_words(int(token.get_text()))
             for word in token_converted_to_words:
                 expanded_tokens.append(Token(TEXT=word))
-        elif token._text == '[QUOTE]':
+        elif token.get_text() == '[QUOTE]':
             if not quote_opened:
                 expanded_tokens.append(Token(TEXT='quote'))
             else:
