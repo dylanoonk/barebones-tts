@@ -21,3 +21,9 @@ python3 barebones-tts.py
 ```
 
 ...and start typing. This is still in early development so this will change soon to be better.
+
+If you want to save the audio to a wav file then use the `--wav` or `-w` flags.
+
+```bash
+python3 barebones-tts.py --wav
+```
