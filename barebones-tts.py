@@ -58,7 +58,6 @@ def speaking_loop(synth: FormantSynthesizer, save_to_file=False):
 
     if save_to_file:
         filename = f'{sanitize_for_filename(input_text)}.wav'
-        # print(f"{Fore.RESET}Saving as {Fore.GREEN}'{filename}'")
         synth.save_wav(complete_audio, filename)
 
 
