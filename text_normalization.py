@@ -62,7 +62,7 @@ COMMON_REPLACEMENT_RULES = [
     (re.compile(r'\bsw\b'), 'south west'),
       
 ]
-    
+
 PUNCTUATION_REPLACEMENT_RULES = [
     # These three have to run first to avoid some edge cases where they replace some of the tokens
     (re.compile(r'\[',), ' open bracket '),
@@ -122,6 +122,7 @@ PUNCTUATION_REPLACEMENT_RULES = [
     
     # Asterisk
     (re.compile(r'\*'), ' asterisk '),
+    (re.compile(r'\^'), ' caret '),
 ]
 
 MULTIPLE_SPACES_PATTERN = re.compile(r'\s+')
