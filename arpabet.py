@@ -1,6 +1,7 @@
 from text_normalization import normalize_text
 from tokenization import TokenList, Token
 from formant_synth import FormantSynthesizer
+from colorama import Fore
 import sqlite3
 
 def get_sound_from_db(WORD: str, CONNECTION: sqlite3.Connection, CURSOR: sqlite3.Cursor, sound_column: str = 'sound', word_column: str = 'word', table_name: str = 'pronunciations') -> str | None:
@@ -22,9 +23,16 @@ def fallback_pronunciation(TEXT: str, CONNECTION: sqlite3.Connection, CURSOR: sq
 
     for CHARACTER in CHARACTERS:
         sound = get_sound_from_db(CHARACTER.lower(), CONNECTION, CURSOR)
-        output.append(sound)
-        
-    return " ".join(output).strip()
+        if sound:
+            output.append(sound)
+        else:
+            print(f"{Fore.RESET}{Fore.YELLOW}Unknown Character \"{CHARACTER.encode()}\"")
+
+    if output:
+        return " ".join(output).strip()
+    
+    return ""
+    
 
 
 def arpabetize(tokens: TokenList, DB_FILE: str = 'pronunciation.db') -> TokenList:

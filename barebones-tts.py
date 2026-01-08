@@ -72,6 +72,6 @@ if __name__ == '__main__':
     try:
         while True:
             speaking_loop(synth, save_to_file=save_to_file)
-    except:
+    except KeyboardInterrupt:
         print(f"{Fore.RESET}\nGoodbye.")
         exit()

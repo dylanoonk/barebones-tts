@@ -122,6 +122,7 @@ PUNCTUATION_REPLACEMENT_RULES = [
     
     # Asterisk
     (re.compile(r'\*'), ' asterisk '),
+    (re.compile(r'\^'), ' caret '),
 ]
 
 MULTIPLE_SPACES_PATTERN = re.compile(r'\s+')
