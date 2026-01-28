@@ -7,7 +7,6 @@ from tokenization import TokenList, Token
 import os
 
 
-init()
 
 def run_test(test_func, input_val, expected_output, test_name, DEBUG=False):
     actual_output = test_func(input_val)
@@ -386,6 +385,8 @@ def test_normalize_text(DEBUG=False):
 
 
 def main():
+    init()
+
     test_replace_punctuation_and_expand_abreviations(DEBUG=False)
     test_numbers_to_words(DEBUG=False)
     test_normalize_text(DEBUG=False)
