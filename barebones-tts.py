@@ -50,20 +50,12 @@ def speak(input_text: str, synth: FormantSynthesizer = FormantSynthesizer(), sav
             audio = synth.synthesize(TOKEN_TEXT)
             silence = synth.generate_silence(100)
             audio = np.concatenate([audio, silence])
+        elif token.get_modifies_previous_token_flag() and index > 0:
+            
+            audios[index - 1] = synth.pitch_shift(audios[index - 1], token.get_pitch_modifier())
+            audio = synth.generate_silence(token.get_silence_time())
         else:
-            # fucking hell i got to do this eventually i just really dont want to
-            """
-            if token.get_modifies_previous_token_flag() and index > 0:
-                previous_audio = audios[index - 1]
-                previous_audio = synth.pitch_shift(previous_audio, token.get_pitch_modifier())
-
-            else:
-                silence_time = synth.generate_silence(token.get_silence_time())
-                audio = silence_time
-            """
-
-            audio = synth.generate_silence(500)
-
+            audio = synth.generate_silence(token.get_silence_time())
         audios.append(audio)
 
     print(f"{Fore.RESET}{Fore.BLUE}Playing...")
