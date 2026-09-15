@@ -18,24 +18,7 @@ def sanitize_for_filename(input_string: str) -> str:
 
     return s
 
-
-def speak(input_text: str, synth: FormantSynthesizer = FormantSynthesizer(), save_to_file: bool = False, filename: str = "") -> str | None:
-    """
-    Speaks given text out loud (or saves to a file) the given English text 
-    
-    :param input_text: Text to be spoken
-    :type input_text: str
-    :param synth: Syntheizer object to use for synthesizing the phonemes into sound
-    :type synth: FormantSynthesizer
-    :param save_to_file: Flag for whether or play the sound out loud or save it to a file
-    :type save_to_file: bool
-    :param filename: File name for the wav file of the spoken text
-    :type filename: str
-
-    :return: Returns the filename (string) if save_to_file flag is set to True; otherwise returns nothing
-    :rtype: str | None
-    """
-
+def render(input_text: str, synth: FormantSynthesizer) -> np.ndarray:
     normalized = normalize_text(input_text)
     print(f"{Fore.RESET}normalized: {Fore.CYAN}'{normalized}'")
     arpabetized = arpabetize(normalized)
@@ -51,7 +34,7 @@ def speak(input_text: str, synth: FormantSynthesizer = FormantSynthesizer(), sav
             silence = synth.generate_silence(100)
             audio = np.concatenate([audio, silence])
         elif token.get_modifies_previous_token_flag() and index > 0:
-            
+
             audios[index - 1] = synth.pitch_shift(audios[index - 1], token.get_pitch_modifier())
             audio = synth.generate_silence(token.get_silence_time())
         else:
@@ -60,16 +43,30 @@ def speak(input_text: str, synth: FormantSynthesizer = FormantSynthesizer(), sav
 
     print(f"{Fore.RESET}{Fore.BLUE}Playing...")
     complete_audio = np.concatenate(audios)
-    
-    if not save_to_file:
-        synth.play(complete_audio)
-        return None
+    return complete_audio
 
+
+def speak(input_text: str, synth: FormantSynthesizer) -> None:
+    """
+    Speaks given text out loud the given English text 
     
+    :param input_text: Text to be spoken
+    :type input_text: str
+    :param synth: Syntheizer object to use for synthesizing the phonemes into sound
+    :type synth: FormantSynthesizer
+    """
+
+    audio = render(input_text, synth)
+    synth.play(audio)
+    
+
+def save(input_text: str, synth: FormantSynthesizer, filename: str = "") -> str:
+    audio = render(input_text, synth)
+
     if filename == "":
         filename = f'{sanitize_for_filename(input_text)}.wav'
     
-    synth.save_wav(complete_audio, filename)
+    synth.save_wav(audio, filename)
     return filename
 
 
@@ -85,7 +82,10 @@ if __name__ == '__main__':
         while True:
             input_text = input(f"{Fore.GREEN}> ").strip()
             # set synth explicitly so it doesn't have to reinitialize over and over again
-            speak(input_text, synth=synth, save_to_file=save_to_file)
+            speak(input_text, synth)
+
+            if save_to_file:
+                save(input_text, synth)
     except KeyboardInterrupt:
         print(f"{Fore.RESET}\nGoodbye.")
         exit()
