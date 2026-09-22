@@ -27,3 +27,12 @@ If you want to save the audio to a wav file then use the `--wav` or `-w` flags.
 ```bash
 python3 barebones-tts.py --wav
 ```
+
+Also, to use, just import like normal and start speaking:
+
+```python
+from barebones-tts import barebones_tts
+
+barebones = barebones_tts()
+barebones.speak("Hello world.")
+```

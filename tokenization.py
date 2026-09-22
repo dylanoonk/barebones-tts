@@ -1,6 +1,7 @@
 class Token:
     def __init__(self, TEXT: str = "", IS_MODIFIER: bool = False, MODIFIES_PREVIOUS_TOKEN: bool = False, IS_SPEAKABLE: bool = False, SILENCE_TIME: float = 0.0, PITCH_MODIFIER: float = 0.0):
         self._text: str = TEXT.strip()
+        self._phoneme : list[str] = []
         self._is_modifier: bool = IS_MODIFIER
         self._is_speakable: bool = IS_SPEAKABLE
 
@@ -15,6 +16,12 @@ class Token:
         
     def get_text(self) -> str:
         return self._text
+
+    def set_phoneme(self, PHONEME: list[str]):
+        self._phoneme = PHONEME
+
+    def get_phoneme(self) -> list[str]:
+        return self._phoneme
 
     def set_modifier_flag(self, IS_MODIFIER: bool):
         self._is_modifier = IS_MODIFIER
@@ -81,7 +88,7 @@ class TokenList:
             if token._is_modifier:
                 output_list.append({'text': token._text, 'modifies_previous_token': token._modifies_previous_token, 'is_speakable': token._is_speakable, 'silence_time': token._silence_time, 'pitch_modifier': token._pitch_modifier})
             else:
-                output_list.append({'text': token._text})
+                output_list.append({'text': token._text, 'phoneme': token._phoneme})
         return output_list
     
     def to_json(self):
@@ -112,14 +119,6 @@ class TokenList:
 
     def append(self, token: Token):
         self._tokens.append(token)
-
-
-
-
-
-
-
-
 
 def main():
     token = Token("Hello")

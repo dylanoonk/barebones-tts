@@ -4,4 +4,10 @@ version = "0.1.0"
 description = "I wanted a TTS from first principles"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "colorama>=0.4.6",
+    "numpy>=2.5.3",
+    "scipy>=1.18.1",
+    "sounddevice>=0.5.6",
+]
+

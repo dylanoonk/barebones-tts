@@ -114,15 +114,17 @@ class FormantSynthesizer:
         b, a = signal.butter(3, [low, high], btype='band')
         return signal.filtfilt(b, a, audio)
     
-    def formant_filter(self, audio, frequency, bandwidth):
+    def formant_filter(self, audio, frequency, bandwidth) -> float:
         """Apply resonant filter at formant frequency"""
         r = np.exp(-np.pi * bandwidth / self.sample_rate)
         theta = 2 * np.pi * frequency / self.sample_rate
         
         a = [1.0, -2*r*np.cos(theta), r**2]
         b = [1 - r**2]
+
+        FILTERED: float = signal.lfilter(b, a, audio)
         
-        return signal.lfilter(b, a, audio)
+        return FILTERED
     
     def synthesize_vowel(self, f1, f2, f3, amp1, amp2, amp3, duration):
         """Synthesize vowel or vowel-like sound"""
@@ -149,8 +151,7 @@ class FormantSynthesizer:
         
         return audio
     
-    def synthesize_fricative(self, f1, f2, f3, amp1, amp2, amp3, duration, 
-                            voiced=False, freq=3000):
+    def synthesize_fricative(self, f1, f2, f3, amp1, amp2, amp3, duration, voiced=False, freq=3000):
         """Synthesize fricative (noise-based)"""
         if voiced:
             # Mix voiced excitation with noise
@@ -199,8 +200,7 @@ class FormantSynthesizer:
         
         return np.concatenate([silence, burst])
     
-    def synthesize_affricate(self, f1, f2, f3, amp1, amp2, amp3, duration,
-                            voiced=False, closure=0.04, freq=3000):
+    def synthesize_affricate(self, f1, f2, f3, amp1, amp2, amp3, duration, voiced=False, closure=0.04, freq=3000):
         """Synthesize affricate (stop + fricative)"""
         closure_samples = int(self.sample_rate * closure)
         fric_duration = duration - closure
