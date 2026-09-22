@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.io import wavfile
 from scipy import signal
-import sounddevice as sd
+
 
 # Types: 'vowel', 'nasal', 'liquid', 'fricative', 'stop', 'affricate'
 PHONEME_DATA = {
@@ -22,43 +22,43 @@ PHONEME_DATA = {
     'UH': [440, 1020, 2240, 1.0, 0.6, 0.3, 0.12, 'vowel'],
     'UW': [300, 870,  2240, 1.0, 0.6, 0.3, 0.15, 'vowel'],
     
-    # NASALS (voiced, nasal formants)
+    # NASALS 
     'M':  [280, 1200, 2500, 0.9, 0.4, 0.2, 0.08, 'nasal'],
     'N':  [280, 1700, 2600, 0.9, 0.4, 0.2, 0.07, 'nasal'],
     'NG': [280, 2200, 2600, 0.9, 0.4, 0.2, 0.09, 'nasal'],
     
-    # LIQUIDS (voiced, vowel-like)
+    # LIQUIDS 
     'L':  [300, 1300, 3000, 0.8, 0.5, 0.3, 0.07, 'liquid'],
     'R':  [420, 1300, 1600, 0.8, 0.5, 0.3, 0.08, 'liquid'],
     
-    # SEMIVOWELS (voiced, very short)
+    # SEMIVOWELS 
     'W':  [300, 610,  2200, 0.8, 0.5, 0.3, 0.08, 'liquid'],
     'Y':  [280, 2250, 3000, 0.8, 0.6, 0.3, 0.06, 'liquid'],
     
-    # VOICED FRICATIVES (mix of voice + noise)
+    # VOICED FRICATIVES 
     'V':  [200, 1000, 2500, 0.3, 0.3, 0.3, 0.09, 'fricative', {'voiced': True, 'freq': 2000}],
     'DH': [200, 1400, 2500, 0.3, 0.3, 0.3, 0.07, 'fricative', {'voiced': True, 'freq': 3500}],
     'Z':  [200, 1500, 2500, 0.3, 0.4, 0.4, 0.10, 'fricative', {'voiced': True, 'freq': 5000}],
     'ZH': [200, 1500, 2000, 0.3, 0.4, 0.4, 0.11, 'fricative', {'voiced': True, 'freq': 3000}],
     
-    # UNVOICED FRICATIVES (pure noise)
+    # UNVOICED FRICATIVES 
     'F':  [200, 1000, 2500, 0.4, 0.4, 0.4, 0.10, 'fricative', {'voiced': False, 'freq': 2500}],
     'TH': [200, 1400, 2500, 0.4, 0.4, 0.4, 0.09, 'fricative', {'voiced': False, 'freq': 4000}],
     'S':  [200, 1500, 2500, 0.4, 0.5, 0.5, 0.12, 'fricative', {'voiced': False, 'freq': 6000}],
     'SH': [200, 1500, 2000, 0.4, 0.5, 0.5, 0.12, 'fricative', {'voiced': False, 'freq': 3500}],
     'HH': [200, 1500, 2500, 0.3, 0.3, 0.3, 0.08, 'fricative', {'voiced': False, 'freq': 2000}],
     
-    # VOICED STOPS (silence + voiced burst)
+    # VOICED STOPS 
     'B':  [200, 1000, 2500, 0.6, 0.4, 0.3, 0.08, 'stop', {'voiced': True, 'closure': 0.04, 'freq': 500}],
     'D':  [200, 1700, 2500, 0.6, 0.4, 0.3, 0.07, 'stop', {'voiced': True, 'closure': 0.04, 'freq': 2000}],
     'G':  [200, 2500, 3000, 0.6, 0.4, 0.3, 0.08, 'stop', {'voiced': True, 'closure': 0.05, 'freq': 2500}],
     
-    # UNVOICED STOPS (silence + unvoiced burst)
+    # UNVOICED STOPS 
     'P':  [200, 1000, 2500, 0.7, 0.5, 0.3, 0.09, 'stop', {'voiced': False, 'closure': 0.05, 'freq': 500}],
     'T':  [200, 1700, 2500, 0.7, 0.5, 0.3, 0.08, 'stop', {'voiced': False, 'closure': 0.05, 'freq': 3000}],
     'K':  [200, 2500, 3000, 0.7, 0.5, 0.3, 0.09, 'stop', {'voiced': False, 'closure': 0.06, 'freq': 3500}],
     
-    # AFFRICATES (stop + fricative)
+    # AFFRICATES 
     'CH': [200, 1500, 2000, 0.6, 0.5, 0.4, 0.13, 'affricate', {'voiced': False, 'closure': 0.04, 'freq': 3500}],
     'JH': [200, 1500, 2000, 0.6, 0.5, 0.4, 0.13, 'affricate', {'voiced': True, 'closure': 0.04, 'freq': 3000}],
 }
@@ -69,7 +69,6 @@ class FormantSynthesizer:
         self.pitch = 120  # Hz
         
     def generate_glottal_pulse(self, duration):
-        """Generate excitation source (vocal cord vibration)"""
         num_samples = int(self.sample_rate * duration)
         t = np.arange(num_samples) / self.sample_rate
         
@@ -95,19 +94,16 @@ class FormantSynthesizer:
         return excitation
     
     def generate_noise(self, duration):
-        """Generate white noise for unvoiced sounds"""
         num_samples = int(self.sample_rate * duration)
         return np.random.randn(num_samples)
     
     def highpass_filter(self, audio, cutoff=500):
-        """High-pass filter for fricatives"""
         nyquist = self.sample_rate / 2
         normalized_cutoff = cutoff / nyquist
         b, a = signal.butter(4, normalized_cutoff, btype='high')
         return signal.filtfilt(b, a, audio)
     
     def bandpass_filter(self, audio, center_freq, bandwidth=1000):
-        """Band-pass filter for fricative coloring"""
         nyquist = self.sample_rate / 2
         low = max((center_freq - bandwidth/2) / nyquist, 0.01)
         high = min((center_freq + bandwidth/2) / nyquist, 0.99)
@@ -115,7 +111,6 @@ class FormantSynthesizer:
         return signal.filtfilt(b, a, audio)
     
     def formant_filter(self, audio, frequency, bandwidth) -> float:
-        """Apply resonant filter at formant frequency"""
         r = np.exp(-np.pi * bandwidth / self.sample_rate)
         theta = 2 * np.pi * frequency / self.sample_rate
         
@@ -127,7 +122,6 @@ class FormantSynthesizer:
         return FILTERED
     
     def synthesize_vowel(self, f1, f2, f3, amp1, amp2, amp3, duration):
-        """Synthesize vowel or vowel-like sound"""
         excitation = self.generate_glottal_pulse(duration)
         
         audio = np.zeros_like(excitation)
@@ -138,7 +132,6 @@ class FormantSynthesizer:
         return audio
     
     def synthesize_nasal(self, f1, f2, f3, amp1, amp2, amp3, duration):
-        """Synthesize nasal consonant (like vowel but with anti-resonance)"""
         excitation = self.generate_glottal_pulse(duration)
         
         audio = np.zeros_like(excitation)
@@ -146,40 +139,31 @@ class FormantSynthesizer:
         audio += amp2 * self.formant_filter(excitation, f2, 150)
         audio += amp3 * self.formant_filter(excitation, f3, 200)
         
-        # Add nasal murmur (low frequency component)
         audio += 0.3 * self.formant_filter(excitation, 250, 100)
         
         return audio
     
     def synthesize_fricative(self, f1, f2, f3, amp1, amp2, amp3, duration, voiced=False, freq=3000):
-        """Synthesize fricative (noise-based)"""
         if voiced:
-            # Mix voiced excitation with noise
             excitation = 0.3 * self.generate_glottal_pulse(duration) + \
                         0.7 * self.generate_noise(duration)
         else:
-            # Pure noise
             excitation = self.generate_noise(duration)
         
-        # Shape noise with bandpass filter
         audio = self.bandpass_filter(excitation, freq, 2000)
         
-        # Apply formants (lighter than vowels)
         audio += amp1 * 0.3 * self.formant_filter(excitation, f1, 200)
         audio += amp2 * 0.3 * self.formant_filter(excitation, f2, 200)
         
         return audio
     
     def synthesize_stop(self, f1, f2, f3, amp1, amp2, amp3, duration, voiced=False, closure=0.05, freq=2000):
-        """Synthesize stop consonant (silence + burst)"""
         closure_samples = int(self.sample_rate * closure)
         burst_duration = duration - closure
         burst_samples = int(self.sample_rate * burst_duration)
         
-        # Silence during closure
         silence = np.zeros(closure_samples)
         
-        # Burst (short duration, not full burst_duration)
         short_burst_duration = min(burst_duration * 0.3, 0.03)  # Max 30ms
         
         if voiced:
@@ -188,34 +172,27 @@ class FormantSynthesizer:
         else:
             burst = self.generate_noise(short_burst_duration)
         
-        # Pad to full burst duration
         burst = np.pad(burst, (0, burst_samples - len(burst)))
         
-        # Shape burst
         if len(burst) > 0:
             burst = self.bandpass_filter(burst, freq, 2000)
-            # Exponential decay envelope on burst
             envelope = np.exp(-np.linspace(0, 5, len(burst)))
             burst = burst * envelope
         
         return np.concatenate([silence, burst])
     
     def synthesize_affricate(self, f1, f2, f3, amp1, amp2, amp3, duration, voiced=False, closure=0.04, freq=3000):
-        """Synthesize affricate (stop + fricative)"""
         closure_samples = int(self.sample_rate * closure)
         fric_duration = duration - closure
         
-        # Silence
         silence = np.zeros(closure_samples)
         
-        # Fricative portion
         fricative = self.synthesize_fricative(f1, f2, f3, amp1, amp2, amp3,
                                               fric_duration, voiced, freq)
         
         return np.concatenate([silence, fricative])
     
     def synthesize_phoneme(self, params):
-        """Route to appropriate synthesis method based on phoneme type"""
         f1, f2, f3, amp1, amp2, amp3, duration, ptype = params[:8]
         extra = params[8] if len(params) > 8 else {}
         
@@ -226,26 +203,14 @@ class FormantSynthesizer:
         elif ptype == 'liquid':
             audio = self.synthesize_vowel(f1, f2, f3, amp1, amp2, amp3, duration)
         elif ptype == 'fricative':
-            audio = self.synthesize_fricative(
-                f1, f2, f3, amp1, amp2, amp3, duration,
-                extra.get('voiced', False), extra.get('freq', 3000)
-            )
+            audio = self.synthesize_fricative(f1, f2, f3, amp1, amp2, amp3, duration, extra.get('voiced', False), extra.get('freq', 3000))
         elif ptype == 'stop':
-            audio = self.synthesize_stop(
-                f1, f2, f3, amp1, amp2, amp3, duration,
-                extra.get('voiced', False), extra.get('closure', 0.05),
-                extra.get('freq', 2000)
-            )
+            audio = self.synthesize_stop(f1, f2, f3, amp1, amp2, amp3, duration, extra.get('voiced', False), extra.get('closure', 0.05), extra.get('freq', 2000))
         elif ptype == 'affricate':
-            audio = self.synthesize_affricate(
-                f1, f2, f3, amp1, amp2, amp3, duration,
-                extra.get('voiced', False), extra.get('closure', 0.04),
-                extra.get('freq', 3000)
-            )
+            audio = self.synthesize_affricate(f1, f2, f3, amp1, amp2, amp3, duration, extra.get('voiced', False), extra.get('closure', 0.04), extra.get('freq', 3000))
         else:
             audio = np.zeros(int(self.sample_rate * duration))
         
-        # Apply envelope
         fade_samples = min(int(0.005 * self.sample_rate), len(audio) // 4)
         if fade_samples > 0 and len(audio) > 0:
             envelope = np.ones(len(audio))
@@ -256,11 +221,10 @@ class FormantSynthesizer:
         return audio
     
     def synthesize(self, phonemes):
-        """Synthesize a list of phonemes"""
         audio_segments = []
         
         for i, phoneme in enumerate(phonemes):
-            # Remove stress markers (0, 1, 2) from CMU phonemes
+            # i'd like to eventually add lexical stress but i've no idea where to start for that
             phoneme = phoneme.rstrip('012')
             
             if phoneme not in PHONEME_DATA:
@@ -272,13 +236,11 @@ class FormantSynthesizer:
             audio = self.synthesize_phoneme(params)
             audio_segments.append(audio)
         
-        # Concatenate all segments
         if not audio_segments:
             return np.zeros(self.sample_rate)
         
         audio = np.concatenate(audio_segments)
         
-        # Normalize
         if np.max(np.abs(audio)) > 0:
             audio = audio / np.max(np.abs(audio)) * 0.8
         
@@ -290,36 +252,33 @@ class FormantSynthesizer:
         Positive percent = pitch up, Negative percent = pitch down.
         
         :param audio: input audio array
-        :param percent: percentage to shift (e.g., 10 for 10% higher, -10 for 10% lower)
+        :param percent: percentage to shift
         :return: pitch-shifted audio
         """
-        # Calculate pitch ratio
         if percent == 0.0:
             return audio
 
         ratio = 1.0 + (percent / 100.0)
         
-        # Resample to change pitch (shorter = higher pitch, longer = lower pitch)
         new_length = int(len(audio) / ratio)
         return signal.resample(audio, new_length)
     
     def generate_silence(self, milliseconds):
-        """Generate silence for specified duration in milliseconds"""
         duration_seconds = milliseconds / 1000.0
         num_samples = int(self.sample_rate * duration_seconds)
         return np.zeros(num_samples)
     
     def save_wav(self, audio, filename):
-        """Save audio as WAV file"""
         audio_int = np.int16(audio * 32767)
         wavfile.write(filename, self.sample_rate, audio_int)
         print(f"Saved to {filename}")
 
     def play(self, audio, blocking=True):
-        """Play audio directly through speakers"""
-        sd.play(audio, self.sample_rate)
+        from sounddevice import play, wait
+        
+        play(audio, self.sample_rate)
         if blocking:
-            sd.wait()
+            wait()
 
 
 if __name__ == "__main__":
