@@ -4,12 +4,10 @@ I wrote a text-to-speech system from first principles because I wanted to learn 
 
 ## How to install
 
-I tried to make it as easy as possible to get up and running. Just download the repository and so long as you have Python 3 (and `pip` of course) it's pretty simple:
+Use `pip` to install
 
 ```bash
-git clone git@github.com:dylanoonk/barebones-tts.git
-cd barebone-tts
-pip install -r requirements.txt
+pip install barebones-tts
 ```
 
 ## Start speaking
