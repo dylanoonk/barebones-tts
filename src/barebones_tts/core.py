@@ -1,0 +1,95 @@
+from .text_normalization import normalize_text
+from .arpabet import arpabet
+from .formant_synth import FormantSynthesizer
+from colorama import Fore
+
+import numpy as np
+import re
+
+class barebones_tts:
+
+    def __init__(self) -> None:
+        self.synth = FormantSynthesizer()
+        self.arpabet = arpabet()
+
+
+    def sanitize_for_filename(self, input_string: str) -> str:
+        s = input_string.strip()
+        s = re.sub(r'[\s-]+', '_', s)
+        s = re.sub(r'[<>:"/\\|?*]', '', s)
+        s = s.strip('._')
+
+        if not s:
+            return "unnamed_file"
+
+        return s
+
+    def render(self, input_text: str) -> np.ndarray:
+
+        normalized = normalize_text(input_text)
+        print(f"{Fore.RESET}normalized: {Fore.CYAN}'{normalized}'")
+        arpabetized = self.arpabet.arpabetize(normalized)
+        print(f"{Fore.RESET}arpabetized: {Fore.YELLOW}'{arpabetized}'")
+
+        audios = []
+
+        for index, token in enumerate(arpabetized):
+            if token.get_speakable_flag():
+                TOKEN_PHONEME = token.get_phoneme()
+
+                audio = self.synth.synthesize(TOKEN_PHONEME)
+                silence = self.synth.generate_silence(100)
+                audio = np.concatenate([audio, silence])
+            elif token.get_modifies_previous_token_flag() and index > 0:
+
+                audios[index - 1] = self.synth.pitch_shift(audios[index - 1], token.get_pitch_modifier())
+                audio = self.synth.generate_silence(token.get_silence_time())
+            else:
+                audio = self.synth.generate_silence(token.get_silence_time())
+            audios.append(audio)
+
+        print(f"{Fore.RESET}{Fore.BLUE}Playing...")
+        complete_audio = np.concatenate(audios)
+        return complete_audio
+
+
+    def speak(self, input_text: str) -> None:
+        """
+        Wrapper around the `render()` function that speaks outloud the `input_text`.
+        
+        :param input_text: Text to be spoken
+        :type input_text: str
+        :param synth: Syntheizer object to use for synthesizing the phonemes into sound
+        :type synth: FormantSynthesizer
+        """
+
+        audio = self.render(input_text)
+        self.synth.play(audio)
+        
+
+    def save(self, input_text: str, filename: str = "") -> str:
+        """
+        Wrapper around the `render()` function that saves the `input_text` to a `wav` file.
+        
+        :param input_text: Text to be spoken
+        :type input_text: str
+        :param synth: Syntheizer object to use for synthesizing the phonemes into sound.
+        :type synth: FormantSynthesizer
+        :param filename: Filename of the new `wav` file. Will default to a sanitized version of the `input_text`.
+        :type filename: str
+
+        :return: Filename of newly created `wav` file.
+        :rtype: str
+        """
+        audio = self.render(input_text)
+
+        if filename == "":
+            filename = f'{self.sanitize_for_filename(input_text)}.wav'
+        
+        self.synth.save_wav(audio, filename)
+        return filename
+
+
+
+    
+

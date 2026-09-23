@@ -1,8 +1,8 @@
 from colorama import Fore, init
-from text_normalization import replace_punctuation_and_expand_abreviations
-from text_normalization import numbers_to_words
-from text_normalization import normalize_text, set_modifiers_from_table
-from tokenization import TokenList, Token
+from barebones_tts.text_normalization import replace_punctuation_and_expand_abreviations
+from barebones_tts.text_normalization import numbers_to_words
+from barebones_tts.text_normalization import normalize_text, set_modifiers_from_table
+from barebones_tts.tokenization import TokenList, Token
 
 import os
 

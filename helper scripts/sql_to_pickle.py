@@ -37,6 +37,6 @@ if __name__ == "__main__":
         sys.exit(1)
     
     db_path = sys.argv[1]
-    pickle_path = sys.argv[2] if len(sys.argv) > 2 else "pronunciation.pkl"
+    pickle_path = sys.argv[2] if len(sys.argv) > 2 else "../src/barebones_tts/data/pronunciation.pkl"
     test_pickle_file(pickle_path)
     #sql_to_pickle(db_path, pickle_path)

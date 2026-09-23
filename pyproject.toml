@@ -1,9 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "barebones-tts"
 version = "0.1.0"
 description = "I wanted a TTS from first principles"
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.13"
+authors = [{ name = "Dylan Oonk" }]
+keywords = [
+    "tts",
+    "text-to-speech",
+    "speech-synthesis",
+    "formant-synthesis",
+    "arpabet",
+    "audio",
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+]
 dependencies = [
     "colorama>=0.4.6",
     "numpy>=2.5.3",
@@ -11,3 +33,19 @@ dependencies = [
     "sounddevice>=0.5.6",
 ]
 
+[project.urls]
+Homepage = "https://tts.dylanoonk.net"
+Repository = "https://github.com/dylanoonk/barebones-tts"
+
+[project.scripts]
+barebones-tts = "barebones_tts.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/barebones_tts"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/barebones_tts",
+    "README.md",
+    "LICENSE",
+]
