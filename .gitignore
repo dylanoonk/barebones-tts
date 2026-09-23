@@ -12,3 +12,12 @@ uv.lock
 
 .DS_Store
 test_word_files/
+
+# node leftovers from local browser testing of web/site
+node_modules/
+
+# wrangler local state (from npx wrangler deploy --dry-run etc.)
+.wrangler/
+
+web/wheel_src/
+web/build_wheel.py

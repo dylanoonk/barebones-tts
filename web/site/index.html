@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Barebones TTS</title>
+  <meta name="description" content="A text-to-speech system built from first principles.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main>
+  <h1>Barebones TTS</h1>
+  <p class="intro">
+    I spent too long on it so I hope you enjoy
+  </p>
+
+  <label for="text">Text to speak</label>
+  <textarea id="text" rows="3" spellcheck="false"
+    placeholder="Type something">I love you, Dylan Oonk.</textarea>
+
+  <div class="buttons">
+    <button id="speak" disabled>Speak</button>
+    <button id="save" disabled>Save (.wav)</button>
+    <button id="clear" class="link">Clear console</button>
+  </div>
+
+  <pre id="console" aria-live="polite"></pre>
+
+  <footer>
+    <p><a href="https://github.com/dylanoonk/barebones-tts">Source</a>
+    &middot; all this is run in your local browser. I can't see anything you type.</p>
+  </footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.29.5/full/pyodide.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
