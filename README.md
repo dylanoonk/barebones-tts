@@ -15,7 +15,7 @@ pip install barebones-tts
 Literally just
 
 ```bash
-python3 barebones-tts.py
+uv run barebones-tts
 ```
 
 ...and start typing. This is still in early development so this will change soon to be better.
@@ -23,13 +23,13 @@ python3 barebones-tts.py
 If you want to save the audio to a wav file then use the `--wav` or `-w` flags.
 
 ```bash
-python3 barebones-tts.py --wav
+uv run barebones-tts --wav
 ```
 
 Also, to use, just import like normal and start speaking:
 
 ```python
-from barebones-tts import barebones_tts
+from barebones_tts import barebones_tts
 
 barebones = barebones_tts()
 barebones.speak("Hello world.")
