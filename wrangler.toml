@@ -1,10 +1,22 @@
+# Cloudflare hosting + observability for the barebones-tts website.
+#
+# Static assets in web/site/ are served free and unmetered straight from the
+# edge; worker.js only runs for requests that don't match an asset, i.e.
+# POST /_log (the anonymous telemetry sink — see worker.js).
+#
+# Logs land in: dash.cloudflare.com -> Workers & Pages -> barebones-tts -> Observability
+# (Workers Logs: 200k events/day, 3-day retention on the free plan)
+
 name = "barebones-tts"
 compatibility_date = "2026-09-22"
+main = "worker.js"
+
+[observability]
+enabled = true
+
+[observability.logs]
+invocation_logs = true
 
 [assets]
 directory = "./web/site"
-
-[observability.logs]
-enabled = true
-invocation_logs = true
-persist = true
+binding = "ASSETS"

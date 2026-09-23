@@ -13,6 +13,26 @@ let glueSave = null;
 let ready = false;
 let busy = false;
 
+const T0 = performance.now();
+let stageStart = T0;
+let currentStage = "start";
+
+function report(event, fields = {}) {
+  try {
+    if (!navigator.sendBeacon) return;
+    const now = performance.now();
+    const data = JSON.stringify({
+      event,
+      ms: Math.round(now - stageStart),
+      total_ms: Math.round(now - T0),
+      ...fields,
+    });
+    stageStart = now;
+    navigator.sendBeacon("/_log", data);
+  } catch {
+  }
+}
+
 function addLine(text, className) {
   const div = document.createElement("div");
   div.className = className || "";
@@ -89,6 +109,7 @@ async function playWav(bytes) {
     addLine(`playing ${buf.duration.toFixed(2)}s of audio`);
   } catch (e) {
     addLine(`playback unavailable in this environment (${e.message ?? e})`);
+    report("playback_error", { message: String(e.message ?? e).slice(0, 300) });
   }
 }
 
@@ -133,6 +154,7 @@ async function withText(action) {
     await action(text);
   } catch (e) {
     err(e && e.message ? e.message : String(e));
+    report("error", { message: String(e?.message ?? e).slice(0, 300), source: "action" });
   } finally {
     setBusy(false);
   }
@@ -141,6 +163,7 @@ async function withText(action) {
 const onSpeak = () => withText(async (text) => {
   const wav = ensureBytes(glueSpeak(text));
   await playWav(wav);
+  report("speak"); //this is just the timing data. your inputs arent recorded
 });
 
 const onSave = () => withText(async (text) => {
@@ -160,36 +183,59 @@ const onSave = () => withText(async (text) => {
 
   addLine(`saved ${filename} (${fmtBytes(data.length)})`);
   await playWav(ensureBytes(data));
+  report("save", { bytes: data.length });
 });
 
 
 async function boot() {
   sys("loading python runtime (pyodide)...");
+  currentStage = "pyodide";
   pyodide = await loadPyodide({ indexURL: PYODIDE_INDEX });
   pyodide.setStdout({ batched: (s) => out(s) });
   pyodide.setStderr({ batched: (s) => err(s) });
+  report("boot", { stage: "pyodide" });
 
   sys("loading numpy and scipy...");
+  currentStage = "packages";
   await pyodide.loadPackage(["numpy", "scipy", "micropip"]);
   await pyodide.runPythonAsync(
     'import numpy, scipy; print(f"numpy {numpy.__version__}, scipy {scipy.__version__}")'
   );
+  report("boot", { stage: "packages" });
 
   sys("installing barebones-tts...");
+  currentStage = "wheel";
   const micropip = pyodide.pyimport("micropip");
   await micropip.install(new URL(WHEEL_FILE, location.href).href);
   const glueSrc = await (await fetch("glue.py")).text();
   await pyodide.runPythonAsync(glueSrc);
+  report("boot", { stage: "wheel" });
 
   glueSpeak = pyodide.globals.get("speak_wav");
   glueSave = pyodide.globals.get("save_wav_file");
 
   ready = true;
   refreshButtons();
+  currentStage = "ready";
+  report("boot", { stage: "ready" });
 }
 
 boot().catch((e) => {
   err(`failed to start: ${e.message ?? e}`);
+  report("boot_error", { stage: currentStage, message: String(e.message ?? e).slice(0, 300) });
+});
+
+addEventListener("error", (e) => {
+  report("error", {
+    message: String(e.message ?? "unknown error").slice(0, 300),
+    source: e.filename ? e.filename.split("/").pop() : "",
+    line: e.lineno ?? 0,
+  });
+});
+
+addEventListener("unhandledrejection", (e) => {
+  const reason = e.reason?.message ?? String(e.reason ?? "unhandled rejection");
+  report("error", { message: reason.slice(0, 300), source: "promise" });
 });
 
 
